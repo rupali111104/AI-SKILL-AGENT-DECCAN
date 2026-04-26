@@ -181,14 +181,9 @@ Personalized Learning Plan
 Demo video link:
 
 ```text
-Add your demo video link here
+https://drive.google.com/file/d/1mUPIx_SF_xJdaeIYgOC1u6Irafh4deR6/view?usp=sharing
 ```
 
-Project site URL:
-
-```text
-Add your deployed site link here, or write "Runs locally using the setup steps above"
-```
 
 ## Notes
 
