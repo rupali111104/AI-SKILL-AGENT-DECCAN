@@ -1,4 +1,4 @@
-# AI Skill Assessment Agent
+<img width="1525" height="815" alt="architecture_diagram" src="https://github.com/user-attachments/assets/19c54060-f770-4bcb-9fce-735cffd0fbc7" /># AI Skill Assessment Agent
 
 This project is an AI powered skill assessment and learning plan app.
 
@@ -158,23 +158,7 @@ The learning plan is created from missing skills and weak assessment scores. Eac
 
 ## Architecture Diagram
 
-```text
-React Frontend
-      ↓
-FastAPI Backend
-      ↓
-PDF/DOCX Text Extraction
-      ↓
-LangGraph Agent Workflow
-      ↓
-Skill Gap Analysis
-      ↓
-Assessment Question Generator
-      ↓
-Answer Scoring
-      ↓
-Personalized Learning Plan
-```
+<img width="1525" height="815" alt="architecture_diagram" src="https://github.com/user-attachments/assets/a69f5a10-2fbc-4a9d-bf0b-b227a149d9b3" />
 
 ## Demo
 
