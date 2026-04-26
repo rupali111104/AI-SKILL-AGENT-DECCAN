@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const SAMPLE_JD =
   "We are hiring a Python backend developer to build AI-powered assessment applications. The candidate should have experience with FastAPI, React, REST API design, SQL, Git, Docker, machine learning, embeddings, scikit-learn, LangGraph, LLMs, and RAG. Strong communication and problem solving skills are required.";
 
