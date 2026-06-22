@@ -14,6 +14,12 @@ Run the full Docker Compose stack:
 .\scripts\run_docker_stack.ps1
 ```
 
+The default stack uses a lightweight local embedding fallback so Docker can build quickly. To test the heavier Sentence Transformers image later, run:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.ml.yml up --build skill-matching-service
+```
+
 Deploy the Kubernetes manifests to the current Kubernetes context:
 
 ```powershell

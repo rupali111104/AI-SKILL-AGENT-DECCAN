@@ -1,0 +1,7 @@
+services:
+  skill-matching-service:
+    build:
+      context: .
+      dockerfile: SERVICES/skill-matching-service/Dockerfile.ml
+    environment:
+      EMBEDDING_MODEL: all-MiniLM-L6-v2

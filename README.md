@@ -163,7 +163,7 @@ http://127.0.0.1:8000
 
 ## Run The Cloud-Native Stack Locally
 
-Use Docker Compose from the project root:
+Use Docker Compose from the project root. The default stack uses the lightweight local vector fallback so the full platform can build reliably on normal laptops:
 
 ```powershell
 docker compose up --build
@@ -179,6 +179,14 @@ Question Generation Service: http://localhost:8002
 Learning Plan Service:       http://localhost:8003
 PostgreSQL:                  localhost:5432
 ```
+
+To build the heavier Sentence Transformers version of the Skill Matching Service, use the optional ML compose override:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.ml.yml up --build skill-matching-service
+```
+
+That ML build downloads large packages such as Torch, so the first build can take a long time and needs a stable Docker Desktop session.
 
 ## Kubernetes Deployment
 
