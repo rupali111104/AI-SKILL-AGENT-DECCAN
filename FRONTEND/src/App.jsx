@@ -5,6 +5,38 @@ import "./App.css";
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const SAMPLE_JD =
   "We are hiring a Python backend developer to build AI-powered assessment applications. The candidate should have experience with FastAPI, React, REST API design, SQL, Git, Docker, machine learning, embeddings, scikit-learn, LangGraph, LLMs, and RAG. Strong communication and problem solving skills are required.";
+const PLATFORM_LAYERS = [
+  "React intake",
+  "Resume Service",
+  "S3 storage",
+  "Skill Matching",
+  "PostgreSQL",
+  "Question Service",
+  "Learning Plan",
+  "Kubernetes",
+];
+const SERVICE_CARDS = [
+  {
+    name: "Resume Service",
+    detail: "Stores uploads, extracts text, and orchestrates the candidate analysis flow.",
+    meta: "FastAPI container",
+  },
+  {
+    name: "Skill Matching Service",
+    detail: "Compares resume skills against role requirements with embedding similarity.",
+    meta: "Sentence Transformers",
+  },
+  {
+    name: "Question Generation Service",
+    detail: "Creates technical probes for missing and matched skills.",
+    meta: "Independent API",
+  },
+  {
+    name: "Learning Plan Service",
+    detail: "Builds a prioritized roadmap from gaps and weak assessment signals.",
+    meta: "Roadmap engine",
+  },
+];
 
 function SkillList({ title, skills, emptyText, tone = "default" }) {
   return (
@@ -142,10 +174,12 @@ function App() {
     <main className="app-shell">
       <header className="hero">
         <div>
-          <h1>AI Skill Assessment Agent</h1>
+          <span className="eyebrow">Cloud-native AI recruitment platform</span>
+          <h1>TalentFit AI</h1>
           <p>
-            Resume-to-role fit analysis, proficiency checks, and a personalized
-            learning plan in one place.
+            Upload a resume, extract skills, match against job descriptions,
+            generate interview questions, and create a personalized preparation
+            roadmap through service-based AI infrastructure.
           </p>
         </div>
         <div className="hero-verdict">
@@ -225,6 +259,32 @@ function App() {
             value={analysis ? analysis.missing_skills.length : "--"}
             helper="Priority areas to prepare"
           />
+        </div>
+      </section>
+
+      <section className="platform-section">
+        <div className="section-heading">
+          <span>0</span>
+          <div>
+            <h2>Production Architecture</h2>
+            <p>Each capability is isolated so it can be deployed, scaled, and monitored independently.</p>
+          </div>
+        </div>
+        <div className="platform-flow">
+          {PLATFORM_LAYERS.map((layer) => (
+            <div className="flow-node" key={layer}>{layer}</div>
+          ))}
+        </div>
+        <div className="service-grid">
+          {SERVICE_CARDS.map((service) => (
+            <article className="service-card" key={service.name}>
+              <div>
+                <span>{service.meta}</span>
+                <h3>{service.name}</h3>
+              </div>
+              <p>{service.detail}</p>
+            </article>
+          ))}
         </div>
       </section>
 

@@ -1,13 +1,16 @@
 .venv/
-.venv-1/
-venv/
 __pycache__/
 *.pyc
-
-BACKEND/uploads/
+*.log
 
 FRONTEND/node_modules/
 FRONTEND/dist/
+FRONTEND/.npm-cache/
 
-.env
-.DS_Store
+BACKEND/.venv/
+BACKEND/uploads/
+BACKEND/object-store/
+
+SERVICES/**/__pycache__/
+SERVICES/**/.venv/
+SERVICES/**/object-store/

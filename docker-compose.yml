@@ -1,0 +1,68 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: FRONTEND/Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - resume-service
+
+  resume-service:
+    build:
+      context: .
+      dockerfile: SERVICES/resume-service/Dockerfile
+    environment:
+      SKILL_MATCHING_URL: http://skill-matching-service:8001
+      QUESTION_SERVICE_URL: http://question-generation-service:8002
+      LEARNING_PLAN_URL: http://learning-plan-service:8003
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/recruitment
+      S3_BUCKET: local-resume-bucket
+      LOCAL_OBJECT_STORE: /data/object-store
+    ports:
+      - "8000:8000"
+    volumes:
+      - resume_objects:/data/object-store
+    depends_on:
+      - postgres
+      - skill-matching-service
+      - question-generation-service
+      - learning-plan-service
+
+  skill-matching-service:
+    build:
+      context: .
+      dockerfile: SERVICES/skill-matching-service/Dockerfile
+    environment:
+      EMBEDDING_MODEL: all-MiniLM-L6-v2
+    ports:
+      - "8001:8001"
+
+  question-generation-service:
+    build:
+      context: .
+      dockerfile: SERVICES/question-generation-service/Dockerfile
+    ports:
+      - "8002:8002"
+
+  learning-plan-service:
+    build:
+      context: .
+      dockerfile: SERVICES/learning-plan-service/Dockerfile
+    ports:
+      - "8003:8003"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: recruitment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  resume_objects:

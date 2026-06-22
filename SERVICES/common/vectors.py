@@ -1,12 +1,13 @@
 import hashlib
 import math
 import re
+from typing import List
 
 
 VECTOR_SIZE = 384
 
 
-def create_embedding(text: str) -> list[float]:
+def create_embedding(text: str) -> List[float]:
     tokens = re.findall(r"[a-zA-Z0-9+#.]+", (text or "").lower())
     vector = [0.0] * VECTOR_SIZE
 
@@ -23,7 +24,7 @@ def create_embedding(text: str) -> list[float]:
     return [value / magnitude for value in vector]
 
 
-def calculate_cosine_similarity(embedding1, embedding2) -> float:
+def cosine_similarity(embedding1, embedding2) -> float:
     if not embedding1 or not embedding2:
         return 0.0
 

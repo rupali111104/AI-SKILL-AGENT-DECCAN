@@ -1,176 +1,242 @@
-<img width="1525" height="815" alt="architecture_diagram" src="https://github.com/user-attachments/assets/19c54060-f770-4bcb-9fce-735cffd0fbc7" /># AI Skill Assessment Agent
+# TalentFit AI - Cloud-Native AI Recruitment Platform
 
-This project is an AI powered skill assessment and learning plan app.
+TalentFit AI is an upgraded AI recruitment platform that analyzes a candidate resume against a target job description, identifies skill gaps, generates technical assessment questions, and creates a personalized learning roadmap.
 
-The idea is simple. A resume can show what a person claims to know, but it does not always show how well they actually know it. This app takes a candidate resume and a job description, compares the skills, asks a few assessment questions, scores the answers, and then creates a learning plan for the missing or weak skills.
+The project started as a college-style AI skill assessment agent. It is now structured like a production software engineering system: React frontend, independent FastAPI microservices, Docker containers, Kubernetes manifests, PostgreSQL persistence, S3-compatible resume storage, and GitHub Actions CI/CD.
 
-I built this as a working prototype for the Deccan AI Catalyst hackathon.
+## Platform Story
 
-## What The App Does
+Instead of building one monolithic AI application, TalentFit AI separates each responsibility into its own service:
 
-The user uploads a resume as a PDF or DOCX file. The user can also upload a job description file or paste the job description text directly into the app.
+```text
+React Frontend
+    |
+Resume Service API
+    |
+    |-- stores resume object in S3 or local object storage
+    |-- extracts PDF/DOCX text
+    |-- forwards skills to Skill Matching Service
+    |-- asks Question Generation Service for interview questions
+    |-- asks Learning Plan Service for a roadmap
+    |-- stores analysis result in PostgreSQL
+    |
+Recruiter/Candidate Result Dashboard
+```
 
-After clicking analyze, the backend extracts text from the files and finds the important skills in both the resume and the job description. Then it compares both sides and shows matched skills, missing skills, a skill match score, and a semantic similarity score.
-
-After that, the app asks skill-based assessment questions. The candidate can answer those questions, and the app gives a basic proficiency score for each answer. Finally, it creates a personalized learning plan with priority, time estimate, resources, and a small project idea for practice.
+This design demonstrates the kind of architecture used in larger engineering teams: each service has a clear contract, can be deployed independently, can scale independently, and can be tested without changing the whole platform.
 
 ## Main Features
 
-1. Upload resume as PDF or DOCX
-2. Upload or paste job description
-3. Extract text from PDF and DOCX files
-4. Find required skills from the job description
-5. Find candidate skills from the resume
-6. Show matched skills and skill gaps
-7. Create embeddings using a local model
-8. Compare resume and job description using cosine similarity
-9. Ask assessment questions for important skills
-10. Score candidate answers
-11. Generate a personalized learning plan
+1. Upload a candidate resume from the React frontend.
+2. Extract text from PDF and DOCX resumes.
+3. Store uploaded resumes in AWS S3 in production or local object storage during development.
+4. Extract candidate skills and required job skills.
+5. Match candidate skills against a job description.
+6. Compute semantic similarity with Sentence Transformers in the matching service.
+7. Store analysis results in PostgreSQL.
+8. Generate technical interview questions from missing and matched skills.
+9. Generate a personalized learning roadmap.
+10. Run each service in its own Docker container.
+11. Deploy services to Kubernetes with Deployments and Services.
+12. Use GitHub Actions to validate, build Docker images, push to GHCR, and deploy.
 
 ## Tech Stack
 
--> React for frontend
--> FastAPI for backend
--> Python
--> LangGraph for agent workflow
--> sentence-transformers for local embeddings
--> scikit-learn for cosine similarity
--> pypdf for PDF text extraction
--> python-docx for DOCX text extraction
+Frontend:
+- React
+- Vite
+- Axios
+
+Backend and services:
+- FastAPI
+- Python
+- pypdf
+- python-docx
+- httpx
+- Sentence Transformers
+- PostgreSQL
+- AWS S3 or local object storage fallback
+
+Cloud-native:
+- Docker
+- Docker Compose
+- Kubernetes Deployments and Services
+- GitHub Actions
+- GitHub Container Registry
 
 ## Project Structure
 
 ```text
 AI-SKILL-AGENT-DECCAN/
-  BACKEND/
-    app/
-      main.py
-      document_utils.py
-      embedding_utils.py
-      agent_utils.py
-      agent_graph.py
-    requirements.txt
-
   FRONTEND/
     src/
-      App.jsx
-      App.css
-      main.jsx
-      index.css
-    package.json
+    Dockerfile
+
+  BACKEND/
+    app/
+    requirements.txt
+
+  SERVICES/
+    common/
+      skills.py
+      vectors.py
+      storage.py
+      database.py
+    resume-service/
+      app.py
+      Dockerfile
+      requirements.txt
+    skill-matching-service/
+      app.py
+      Dockerfile
+      requirements.txt
+    question-generation-service/
+      app.py
+      Dockerfile
+      requirements.txt
+    learning-plan-service/
+      app.py
+      Dockerfile
+      requirements.txt
+
+  k8s/
+    namespace.yaml
+    configmap.yaml
+    secret.example.yaml
+    frontend.yaml
+    resume-service.yaml
+    skill-matching-service.yaml
+    question-generation-service.yaml
+    learning-plan-service.yaml
+    postgres.yaml
+
+  .github/workflows/
+    cloud-native-ci.yml
+
+  docker-compose.yml
+  start_phase1.ps1
 ```
 
-## How It Works
+## Service Responsibilities
 
-```text
-Resume + Job Description
-        ↓
-Text extraction from PDF/DOCX
-        ↓
-Skill extraction
-        ↓
-Skill matching and gap analysis
-        ↓
-Assessment questions
-        ↓
-Answer scoring
-        ↓
-Personalized learning plan
-```
+Resume Service:
+- Receives resume and job description uploads.
+- Stores resume objects in S3 or local object storage.
+- Extracts text from PDF/DOCX.
+- Calls downstream services.
+- Persists final analysis results in PostgreSQL when `DATABASE_URL` is configured.
 
-The backend workflow is separated into different files so the code is easier to understand. Document extraction, embeddings, skill logic, and the agent workflow are not mixed together in one large file.
+Skill Matching Service:
+- Receives resume text, job description text, and extracted skills.
+- Compares required skills with candidate skills.
+- Uses Sentence Transformers when available.
+- Falls back to deterministic local vectors for lightweight local demos.
+- Returns matched skills, missing skills, extra skills, match score, and semantic similarity.
 
-## Backend Setup
+Question Generation Service:
+- Generates practical and conceptual technical questions.
+- Prioritizes missing skills first, then matched skills.
 
-Open a terminal in the project folder and run:
+Learning Plan Service:
+- Builds a prioritized roadmap for missing or weak skills.
+- Includes learning goals, resources, mini projects, and time estimates.
+
+## Run The Original Local Demo
+
+The original local demo is still available and useful for quick presentations:
 
 ```powershell
-cd BACKEND
-python -m venv venv
-venv\Scripts\activate
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+.\start_phase1.ps1
 ```
 
-The backend will run here:
+Frontend:
+
+```text
+http://127.0.0.1:5173
+```
+
+Backend:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-FastAPI docs will be here:
+## Run The Cloud-Native Stack Locally
 
-```text
-http://127.0.0.1:8000/docs
-```
-
-## Frontend Setup
-
-Open a second terminal and run:
+Use Docker Compose from the project root:
 
 ```powershell
-cd FRONTEND
-npm install
-npm run dev
+docker compose up --build
 ```
 
-The frontend will usually run here:
+Services:
 
 ```text
-http://localhost:5173
+Frontend:                    http://localhost:5173
+Resume Service:              http://localhost:8000
+Skill Matching Service:      http://localhost:8001
+Question Generation Service: http://localhost:8002
+Learning Plan Service:       http://localhost:8003
+PostgreSQL:                  localhost:5432
 ```
 
-Sometimes Vite may start on another port like `5174` or `5175`. That is okay.
+## Kubernetes Deployment
 
-## Sample Job Description
+The Kubernetes manifests are in `k8s/`.
+
+Before deploying, create a real secret from `k8s/secret.example.yaml` and replace:
+
+- `DATABASE_URL`
+- `POSTGRES_PASSWORD`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+
+Also replace the placeholder `OWNER` in image names with your GitHub Container Registry owner or organization.
+
+Example deploy:
+
+```powershell
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.example.yaml
+kubectl apply -f k8s/postgres.yaml
+kubectl apply -f k8s/resume-service.yaml
+kubectl apply -f k8s/skill-matching-service.yaml
+kubectl apply -f k8s/question-generation-service.yaml
+kubectl apply -f k8s/learning-plan-service.yaml
+kubectl apply -f k8s/frontend.yaml
+```
+
+## CI/CD
+
+The GitHub Actions workflow in `.github/workflows/cloud-native-ci.yml` does three things:
+
+1. Validates frontend lint/build and Python compilation.
+2. Builds Docker images for the frontend and each service.
+3. Pushes images to GitHub Container Registry and deploys Kubernetes manifests on pushes to `main`.
+
+Required GitHub secret:
 
 ```text
-We are hiring a Python backend developer to build AI-powered assessment applications. The candidate should have experience with FastAPI, React, REST API design, SQL, Git, Docker, machine learning, embeddings, scikit-learn, LangGraph, LLMs, and RAG. Strong communication and problem solving skills are required.
+KUBE_CONFIG
 ```
 
-## Sample Output
+The workflow uses GitHub's built-in `GITHUB_TOKEN` to publish images to GHCR.
 
-```json
-{
-  "match_score": 55.56,
-  "semantic_similarity": 62.18,
-  "matched_skills": ["python", "react", "git"],
-  "missing_skills": ["fastapi", "docker", "langgraph", "llm"],
-  "questions": [
-    {
-      "skill": "fastapi",
-      "question": "Explain one real project or task where you used fastapi. What problem did it solve?"
-    }
-  ]
-}
-```
+## Interview Explanation
 
-## Scoring Logic
-
-The skill match score is calculated by checking how many required job skills are also found in the resume.
-
-The semantic similarity score is calculated using embeddings and cosine similarity. This gives a rough idea of how close the resume is to the job description in meaning, not only exact skill words.
-
-The answer score is from 1 to 5. Longer and more practical answers get better scores, especially when they include real project details, implementation work, testing, deployment, debugging, or trade-offs.
-
-The learning plan is created from missing skills and weak assessment scores. Each item includes why the skill matters, what to learn, a small project idea, resources, and estimated time.
-
-## Architecture Diagram
-
-<img width="1525" height="815" alt="architecture_diagram" src="https://github.com/user-attachments/assets/a69f5a10-2fbc-4a9d-bf0b-b227a149d9b3" />
-
-## Demo
-
-Demo video link:
+You can explain the project like this:
 
 ```text
-https://drive.google.com/file/d/1mUPIx_SF_xJdaeIYgOC1u6Irafh4deR6/view?usp=sharing
+I upgraded a simple AI resume analyzer into a cloud-native recruitment platform.
+The React frontend uploads resumes to a Resume Service. That service stores files in S3,
+extracts resume text, and coordinates separate microservices for skill matching,
+question generation, and learning-plan generation. The matching service uses Sentence
+Transformers for semantic similarity, and final results are stored in PostgreSQL.
+Each service runs in its own Docker container and is deployed to Kubernetes using
+Deployments and Services, so the system can scale each workload independently.
+GitHub Actions validates the app, builds images, pushes them to GHCR, and deploys
+updates automatically.
 ```
 
-
-## Notes
-
-This is a prototype, so the skill extraction is intentionally kept simple and transparent. It uses a skill list, local embeddings, and clear scoring rules so the result is easy to understand and explain during a demo.
-
-In a future version, the skill extraction and answer evaluation can be improved using a stronger LLM-based structured output system.
+This shows React, APIs, microservices, Docker, Kubernetes, databases, cloud storage, CI/CD, and AI/ML in one coherent software engineering project.

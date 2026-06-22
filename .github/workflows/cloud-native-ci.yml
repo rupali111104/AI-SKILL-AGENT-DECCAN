@@ -1,0 +1,107 @@
+name: Cloud Native CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/ai-recruitment
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: FRONTEND/package-lock.json
+
+      - name: Validate frontend
+        working-directory: FRONTEND
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Python services
+        run: |
+          python -m compileall BACKEND/app SERVICES
+
+  build-images:
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - name: frontend
+            dockerfile: FRONTEND/Dockerfile
+          - name: resume-service
+            dockerfile: SERVICES/resume-service/Dockerfile
+          - name: skill-matching-service
+            dockerfile: SERVICES/skill-matching-service/Dockerfile
+          - name: question-generation-service
+            dockerfile: SERVICES/question-generation-service/Dockerfile
+          - name: learning-plan-service
+            dockerfile: SERVICES/learning-plan-service/Dockerfile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: github.event_name == 'push'
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+      - name: Deploy Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/postgres.yaml
+          kubectl apply -f k8s/resume-service.yaml
+          kubectl apply -f k8s/skill-matching-service.yaml
+          kubectl apply -f k8s/question-generation-service.yaml
+          kubectl apply -f k8s/learning-plan-service.yaml
+          kubectl apply -f k8s/frontend.yaml

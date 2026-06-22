@@ -3,4 +3,6 @@ uvicorn
 python-multipart
 pypdf
 python-docx
-langgraph
+httpx
+boto3
+psycopg[binary]

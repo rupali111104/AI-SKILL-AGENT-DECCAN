@@ -64,6 +64,16 @@ p {
   line-height: 1.55;
 }
 
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #7a4d00;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .hero-verdict {
   display: grid;
   align-content: center;
@@ -98,7 +108,8 @@ p {
 .input-card,
 .assessment-section,
 .evaluation-section,
-.plan-section {
+.plan-section,
+.platform-section {
   border: 1px solid #d8e2e5;
   border-radius: 8px;
   background: #ffffff;
@@ -269,8 +280,73 @@ textarea:focus {
 
 .assessment-section,
 .evaluation-section,
-.plan-section {
+.plan-section,
+.platform-section {
   margin-top: 18px;
+}
+
+.platform-section {
+  background:
+    linear-gradient(135deg, rgba(15, 95, 86, 0.08), rgba(122, 77, 0, 0.06)),
+    #ffffff;
+}
+
+.platform-flow {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.flow-node {
+  display: grid;
+  min-height: 70px;
+  place-items: center;
+  border: 1px solid #cfe0df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #12313a;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.25;
+  padding: 10px;
+  text-align: center;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.service-card {
+  display: grid;
+  gap: 12px;
+  min-height: 164px;
+  border: 1px solid #d8e2e5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.service-card span {
+  color: #7a4d00;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.service-card h3 {
+  margin: 6px 0 0;
+  color: #111827;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.service-card p {
+  margin-bottom: 0;
+  color: #53616a;
+  line-height: 1.45;
 }
 
 .skill-grid {
@@ -474,6 +550,8 @@ textarea:focus {
 @media (max-width: 1050px) {
   .hero,
   .input-dashboard,
+  .platform-flow,
+  .service-grid,
   .skill-grid,
   .evaluation-grid,
   .plan-list {
